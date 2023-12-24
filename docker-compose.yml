@@ -1,0 +1,26 @@
+version: '3'
+services:
+  postgres:
+    container_name: nest-boilerplate-postgres
+    image: "postgres:14.5"
+    env_file:
+      - .env.docker-compose
+    networks:
+      - nest-boilerplate
+
+  backend:
+    container_name: nest-boilerplate-backend
+    image: "localhost:5000/nest-boilerplate/nest-boilerplate"
+    ports:
+      - "3001:3000"
+    depends_on:
+      - postgres
+    networks:
+      - nest-boilerplate
+    env_file:
+      - .env.docker-compose
+
+networks:
+  nest-boilerplate:
+    driver: bridge
+
