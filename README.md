@@ -61,8 +61,8 @@ $ pnpm run test:cov
 
 ---
 
-`pnpm run migration:create --name=new-migration-nsme-small-description` create new empty migration file
-`pnpm run migration:generate --name=new-migration-nsme-small-description` generate new migration of all the changes made in schema
-`pnpm run migration:run` run all unapplied migrations
-`pnpm run migration:show` run all unapplied migrations
-`pnpm run migration:revert` revert last applied migration
+- `pnpm run migration:create --name=new-migration-nsme-small-description` create new empty migration file
+- `pnpm run migration:generate --name=new-migration-nsme-small-description` generate new migration of all the changes made in schema
+- `pnpm run migration:run` run all unapplied migrations
+- `pnpm run migration:show` run all unapplied migrations
+- `pnpm run migration:revert` revert last applied migration
