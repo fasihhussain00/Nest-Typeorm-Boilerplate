@@ -1,4 +1,4 @@
-import { compareSync, hashSync } from 'bcrypt';
+import { compareSync, hashSync, genSaltSync } from 'bcrypt';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -12,7 +12,6 @@ import {
   BeforeInsert,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
-import { env } from 'src/env';
 
 @Entity()
 @Index('email_unqiue_constraint', ['email'], {
@@ -49,7 +48,8 @@ export class User extends BaseEntity {
   @BeforeUpdate()
   @BeforeInsert()
   hashPassword() {
-    if (this.password) this.password = hashSync(this.password, env.PASS_SALT);
+    const salt = genSaltSync();
+    if (this.password) this.password = hashSync(this.password, salt);
   }
 
   passwordMatch(unencryptedPassword: string) {
