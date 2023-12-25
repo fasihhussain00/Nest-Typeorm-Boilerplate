@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   DeepPartial,
   FindManyOptions,
-  FindOptionsWhere,
+  FindOneOptions,
   Repository,
 } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -26,8 +26,8 @@ export class UsersService {
     return this.userRepository.findOneBy({ id: id });
   }
 
-  findOneBy(options: FindOptionsWhere<User> | FindOptionsWhere<User>[]) {
-    return this.userRepository.findOne({ where: options });
+  findOneBy(options?: FindOneOptions<User>) {
+    return this.userRepository.findOne(options);
   }
 
   update(id: number, user: DeepPartial<User>): Promise<User> {

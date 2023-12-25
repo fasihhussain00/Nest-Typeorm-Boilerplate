@@ -45,7 +45,7 @@ describe('UsersService', () => {
     expect(await service.findOne(user.id)).toEqual(user);
   });
   it('findOneBy', async () => {
-    expect(await service.findOneBy({})).toEqual(user);
+    expect(await service.findOneBy()).toEqual(user);
   });
   it('update', async () => {
     expect(await service.update(user.id, user)).toEqual(user);
