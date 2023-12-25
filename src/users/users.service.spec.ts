@@ -20,6 +20,7 @@ describe('UsersService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: {
+            create: (entity) => new Promise((resolve) => resolve(entity)),
             save: (entity) => new Promise((resolve) => resolve(entity)),
             find: () => new Promise((resolve) => resolve([user])),
             findOneBy: () => new Promise((resolve) => resolve(user)),

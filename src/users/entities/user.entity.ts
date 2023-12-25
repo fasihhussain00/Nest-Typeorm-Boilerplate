@@ -3,23 +3,23 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  BaseEntity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
   Index,
   BeforeUpdate,
   BeforeInsert,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { CustomBaseEntity } from 'src/db/custom.base.entity';
+import { Role } from 'src/roles/entities/role.entity';
 
 @Entity()
-@Index('email_unqiue_constraint', ['email'], {
+@Index('user_email_unqiue_constraint', ['email'], {
   unique: true,
   where: '(deleted_at IS NULL)',
 })
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
+export class User extends CustomBaseEntity {
+  @PrimaryGeneratedColumn({ primaryKeyConstraintName: 'user_pk' })
   id: number;
 
   @Column({ nullable: true })
@@ -35,15 +35,21 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   password?: string;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Exclude({ toPlainOnly: true })
-  @DeleteDateColumn()
-  deletedAt: Date;
+  @ManyToMany(() => Role, {
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'user_role',
+    inverseJoinColumn: {
+      name: 'role_id',
+      foreignKeyConstraintName: 'user_role_fk',
+    },
+    joinColumn: {
+      name: 'user_id',
+      foreignKeyConstraintName: 'role_user_fk',
+    },
+  })
+  roles: Role[];
 
   @BeforeUpdate()
   @BeforeInsert()
@@ -52,8 +58,8 @@ export class User extends BaseEntity {
     if (this.password) this.password = hashSync(this.password, salt);
   }
 
-  passwordMatch(unencryptedPassword: string) {
-    if (!unencryptedPassword || !this.password) return false;
-    return compareSync(unencryptedPassword, this.password);
+  passwordMatch(plainPassword: string) {
+    if (!plainPassword || !this.password) return false;
+    return compareSync(plainPassword, this.password);
   }
 }

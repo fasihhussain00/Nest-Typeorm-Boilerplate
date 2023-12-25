@@ -8,7 +8,7 @@ import {
   HealthIndicatorResult,
 } from '@nestjs/terminus';
 
-@ApiTags('health')
+@ApiTags('Health')
 @Controller('health')
 export class HealthController {
   constructor(

@@ -12,7 +12,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
   create(createUserDto: CreateUserDto): Promise<User> {
-    return this.userRepository.save(createUserDto);
+    return this.userRepository.save(this.userRepository.create(createUserDto));
   }
 
   findAll() {
