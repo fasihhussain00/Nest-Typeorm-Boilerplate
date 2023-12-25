@@ -18,7 +18,10 @@ import { Role } from 'src/roles/entities/role.entity';
 import { PlayerDto } from './dto/player.dto';
 
 @ApiTags('Users')
-@Controller('users')
+@Controller({
+  path: 'users',
+  version: '1',
+})
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
