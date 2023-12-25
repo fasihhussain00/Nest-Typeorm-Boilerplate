@@ -66,3 +66,9 @@ $ pnpm run test:cov
 - `pnpm run migration:run` run all unapplied migrations
 - `pnpm run migration:show` run all unapplied migrations
 - `pnpm run migration:revert` revert last applied migration
+
+
+### Ingress Nginx
+- `helm install nginx-ingress nginx-stable/nginx-ingress --set rbac.create=true` start nginx ingress.
+- `helm upgrade nginx-ingress -f values.production.yaml nginx-stable/nginx-ingress -n nginx-ingress`update nginx ingress with new values.
+- `helm get values nginx-ingress -n nginx-ingress` get current values,
