@@ -4,21 +4,45 @@ import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/entities/user.entity';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { RolesService } from 'src/roles/roles.service';
+import { PermissionEnum } from 'src/roles/entities/types';
+import { Role } from 'src/roles/entities/role.entity';
 
 describe('UsersController', () => {
   let controller: UsersController;
+  const role = {
+    id: 1,
+    name: 'admin',
+    permissions: [PermissionEnum.USER_WRITE],
+  } as Role;
   const user = {
     id: 1,
     sourceId: '1',
     name: 'John',
     email: 'john@yopmail.com',
     password: '123',
-  } as User;
+    roles: [role],
+  } as User & CreateUserDto;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
       providers: [
+        {
+          provide: RolesService,
+          useValue: {
+            create: () => new Promise((resolve) => resolve(role)),
+            update: () => new Promise((resolve) => resolve(role)),
+            remove: () => new Promise((resolve) => resolve(role)),
+            findOne: () => new Promise((resolve) => resolve(role)),
+            findOneBy: () => new Promise((resolve) => resolve(role)),
+            findAll: () => new Promise((resolve) => resolve([role])),
+            mustFind: () =>
+              new Promise((resolve) =>
+                resolve({ success: true, roles: [role] }),
+              ),
+          },
+        },
         {
           provide: UsersService,
           useValue: {
@@ -52,5 +76,8 @@ describe('UsersController', () => {
   });
   it('findAll', async () => {
     expect(await controller.findAll()).toEqual([user]);
+  });
+  it('registerPlayer', async () => {
+    expect(await controller.registerPlayer(user)).toEqual(user);
   });
 });

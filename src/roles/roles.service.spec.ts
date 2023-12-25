@@ -23,6 +23,7 @@ describe('RolesService', () => {
             save: (entity) => new Promise((resolve) => resolve(entity)),
             find: () => new Promise((resolve) => resolve([role])),
             findOneBy: () => new Promise((resolve) => resolve(role)),
+            findOne: () => new Promise((resolve) => resolve(role)),
             softRemove: () => new Promise((resolve) => resolve(role)),
           },
         },
@@ -41,10 +42,19 @@ describe('RolesService', () => {
   it('findOne', async () => {
     expect(await service.findOne(role.id)).toEqual(role);
   });
+  it('findOneBy', async () => {
+    expect(await service.findOneBy({})).toEqual(role);
+  });
   it('update', async () => {
     expect(await service.update(role.id, role)).toEqual(role);
   });
   it('remove', async () => {
     expect(await service.remove(role.id)).toEqual(role);
+  });
+  it('mustFind', async () => {
+    expect(await service.mustFind([role.id])).toEqual({
+      success: true,
+      roles: [role],
+    });
   });
 });

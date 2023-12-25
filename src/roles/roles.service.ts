@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRoleDto } from './dto/create-role.dto';
-import { UpdateRoleDto } from './dto/update-role.dto';
-import { InjectRepository } from '@nestjs/typeorm';
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOptionsWhere,
+  In,
+  Repository,
+} from 'typeorm';
 import { Role } from './entities/role.entity';
-import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class RolesService {
@@ -11,23 +15,39 @@ export class RolesService {
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
   ) {}
-  create(createRoleDto: CreateRoleDto): Promise<Role> {
-    return this.roleRepository.save(this.roleRepository.create(createRoleDto));
+  create(role: DeepPartial<Role>) {
+    return this.roleRepository.save(this.roleRepository.create(role));
   }
 
-  findAll() {
-    return this.roleRepository.find();
+  findAll(options?: FindManyOptions<Role>) {
+    return this.roleRepository.find(options);
   }
 
   findOne(id: number) {
     return this.roleRepository.findOneBy({ id: id });
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
-    return this.roleRepository.save({ ...updateRoleDto, id: id });
+  findOneBy(options: FindOptionsWhere<Role> | FindOptionsWhere<Role>[]) {
+    return this.roleRepository.findOne({ where: options });
+  }
+
+  update(id: number, role: DeepPartial<Role>): Promise<Role> {
+    return this.roleRepository.save({ ...role, id: id });
   }
 
   remove(id: number) {
     return this.roleRepository.softRemove({ id: id });
   }
+  async mustFind(roleIds: number[]): Promise<MustFindResult> {
+    const roles = await this.findAll({
+      where: { id: In(roleIds) },
+      select: ['id'],
+    });
+    return { success: roles.length === roleIds.length, roles };
+  }
+}
+
+interface MustFindResult {
+  success: boolean;
+  roles: Role[];
 }

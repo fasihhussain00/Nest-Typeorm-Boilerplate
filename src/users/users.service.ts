@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { Repository } from 'typeorm';
+import {
+  DeepPartial,
+  FindManyOptions,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -11,20 +14,24 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-  create(createUserDto: CreateUserDto): Promise<User> {
-    return this.userRepository.save(this.userRepository.create(createUserDto));
+  create(user: DeepPartial<User>) {
+    return this.userRepository.save(this.userRepository.create(user));
   }
 
-  findAll() {
-    return this.userRepository.find();
+  findAll(options?: FindManyOptions<User>) {
+    return this.userRepository.find(options);
   }
 
   findOne(id: number) {
     return this.userRepository.findOneBy({ id: id });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    return this.userRepository.save({ ...updateUserDto, id: id });
+  findOneBy(options: FindOptionsWhere<User> | FindOptionsWhere<User>[]) {
+    return this.userRepository.findOne({ where: options });
+  }
+
+  update(id: number, user: DeepPartial<User>): Promise<User> {
+    return this.userRepository.save({ ...user, id: id });
   }
 
   remove(id: number) {
