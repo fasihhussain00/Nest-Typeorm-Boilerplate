@@ -5,6 +5,9 @@ export interface EnvProps {
   DB_URI: string;
   JWT_SECRET: string;
   JWT_EXPIRES_IN: string;
+  INITIAL_ADMIN_NAME: string;
+  INITIAL_ADMIN_PASS: string;
+  INITIAL_ADMIN_EMAIL: string;
 }
 
 export const env: EnvProps = {
@@ -14,4 +17,7 @@ export const env: EnvProps = {
   DB_URI: process.env.DB_URI,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
+  INITIAL_ADMIN_NAME: process.env.INITIAL_ADMIN_NAME,
+  INITIAL_ADMIN_PASS: process.env.INITIAL_ADMIN_PASS,
+  INITIAL_ADMIN_EMAIL: process.env.INITIAL_ADMIN_EMAIL,
 };

@@ -1,11 +1,14 @@
-import { In, MigrationInterface, QueryRunner } from 'typeorm';
+import { DeepPartial, In, MigrationInterface, QueryRunner } from 'typeorm';
 import { Role } from '../../roles/entities/role.entity';
 import { PermissionEnum } from 'src/roles/entities/types';
+import { User } from 'src/users/entities/user.entity';
+import { env } from 'src/env';
+import { genSalt, hash } from 'bcrypt';
 
 export class SeedRolesAdmin1703522077851 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.startTransaction();
-    const rolesToInsert = [
+    const rolesToInsert: DeepPartial<Role>[] = [
       {
         name: 'admin',
         permissions: [
@@ -35,7 +38,27 @@ export class SeedRolesAdmin1703522077851 implements MigrationInterface {
     );
 
     if (rolesToInsertFiltered.length > 0) {
-      await queryRunner.manager.insert(Role, rolesToInsertFiltered);
+      await queryRunner.manager.save(Role, rolesToInsertFiltered);
+    }
+    const usersToInsert: DeepPartial<User>[] = [
+      {
+        name: env.INITIAL_ADMIN_NAME,
+        email: env.INITIAL_ADMIN_EMAIL,
+        password: await hash(env.INITIAL_ADMIN_PASS, await genSalt()),
+        roles: await queryRunner.manager.find(Role, {where: {name: In(['admin'])}})
+      },
+    ];
+    const existingUsers = await queryRunner.manager.find(User, {
+      where: { email: In(usersToInsert.map((user) => user.email)) },
+    });
+
+    const usersToInsertFiltered = usersToInsert.filter(
+      (user) =>
+        !existingUsers.some((existingUser) => existingUser.email === user.email),
+    );
+
+    if (usersToInsertFiltered.length > 0) {
+      await queryRunner.manager.save(User, usersToInsertFiltered);
     }
     await queryRunner.commitTransaction();
   }
@@ -43,6 +66,7 @@ export class SeedRolesAdmin1703522077851 implements MigrationInterface {
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.startTransaction();
     await queryRunner.manager.delete(Role, { name: In(['admin', 'player']) });
+    await queryRunner.manager.delete(User, { email: In([env.INITIAL_ADMIN_EMAIL]) });
     await queryRunner.commitTransaction();
   }
 }
