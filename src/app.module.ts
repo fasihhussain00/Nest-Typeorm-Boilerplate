@@ -7,6 +7,7 @@ import { HealthModule } from './health/health.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
 import { ScopeDetectionModule } from './scope-detection/scope-detection.module';
+import { FilesModule } from './files/files.module';
 @Module({
   imports: [
     UsersModule,
@@ -16,6 +17,7 @@ import { ScopeDetectionModule } from './scope-detection/scope-detection.module';
     RolesModule,
     AuthModule,
     ScopeDetectionModule,
+    FilesModule,
   ],
 })
 export class AppModule {}
