@@ -8,6 +8,7 @@ export interface EnvProps {
   INITIAL_ADMIN_NAME: string;
   INITIAL_ADMIN_PASS: string;
   INITIAL_ADMIN_EMAIL: string;
+  SCOPE_DETECTION_PYTHON: string;
 }
 
 export const env: EnvProps = {
@@ -20,4 +21,5 @@ export const env: EnvProps = {
   INITIAL_ADMIN_NAME: process.env.INITIAL_ADMIN_NAME,
   INITIAL_ADMIN_PASS: process.env.INITIAL_ADMIN_PASS,
   INITIAL_ADMIN_EMAIL: process.env.INITIAL_ADMIN_EMAIL,
+  SCOPE_DETECTION_PYTHON: process.env.SCOPE_DETECTION_PYTHON,
 };

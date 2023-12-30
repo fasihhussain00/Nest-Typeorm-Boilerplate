@@ -6,6 +6,7 @@ import { dataSourceOptions } from './db/config';
 import { HealthModule } from './health/health.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
+import { ScopeDetectionModule } from './scope-detection/scope-detection.module';
 @Module({
   imports: [
     UsersModule,
@@ -14,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
     HealthModule,
     RolesModule,
     AuthModule,
+    ScopeDetectionModule,
   ],
 })
 export class AppModule {}
