@@ -18,6 +18,7 @@ function addSwagger(app) {
   const config = new DocumentBuilder()
     .setTitle('APIs')
     .setDescription('The API description')
+    .addBearerAuth()
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

@@ -16,6 +16,8 @@ import { User } from './entities/user.entity';
 import { RolesService } from 'src/roles/roles.service';
 import { Role } from 'src/roles/entities/role.entity';
 import { PlayerDto } from './dto/player.dto';
+import { Auth } from 'src/auth/decorators/permission.decorator';
+import { PermissionEnum } from 'src/roles/entities/types';
 
 @ApiTags('Users')
 @Controller({
@@ -28,6 +30,7 @@ export class UsersController {
     private readonly roleService: RolesService,
   ) {}
 
+  @Auth(PermissionEnum.USER_WRITE)
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     const { success, roles } = await this.roleService.mustFind(
@@ -45,16 +48,19 @@ export class UsersController {
     });
   }
 
+  @Auth(PermissionEnum.USER_READ)
   @Get()
   async findAll(): Promise<User[]> {
     return await this.usersService.findAll();
   }
 
+  @Auth(PermissionEnum.USER_READ)
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<User> {
     return await this.usersService.findOne(id);
   }
 
+  @Auth(PermissionEnum.USER_WRITE)
   @Patch(':id')
   async update(
     @Param('id') id: number,
@@ -82,6 +88,7 @@ export class UsersController {
     return await this.usersService.update(id, updateUserDto as Role);
   }
 
+  @Auth(PermissionEnum.USER_REMOVE)
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return await this.usersService.remove(id);
