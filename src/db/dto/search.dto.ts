@@ -1,4 +1,4 @@
-import { IsArray, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 export class SearchDto {
   @IsString()
@@ -8,7 +8,6 @@ export class SearchDto {
     description: 'Fields to search',
     example: ['username'],
   })
-  @IsArray()
   @IsString({ each: true })
   field: string[];
 }

@@ -9,6 +9,7 @@ export interface EnvProps {
   INITIAL_ADMIN_PASS: string;
   INITIAL_ADMIN_EMAIL: string;
   SCOPE_DETECTION_PYTHON: string;
+  TEAM_PLAYER_LIMIT: number;
 }
 
 export const env: EnvProps = {
@@ -22,4 +23,5 @@ export const env: EnvProps = {
   INITIAL_ADMIN_PASS: process.env.INITIAL_ADMIN_PASS,
   INITIAL_ADMIN_EMAIL: process.env.INITIAL_ADMIN_EMAIL,
   SCOPE_DETECTION_PYTHON: process.env.SCOPE_DETECTION_PYTHON,
+  TEAM_PLAYER_LIMIT: +process.env.TEAM_PLAYER_LIMIT,
 };

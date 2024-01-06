@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -23,6 +24,8 @@ import { UpdatePlayerDto } from './dto/update-player.dto';
 import { Player } from './entities/player.entity';
 import { PlayersService } from './players.service';
 import { SearchDto } from 'src/db/dto/search.dto';
+import { InviteSendDto } from './dto/invite-send.dto';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Players')
 @Controller({
@@ -33,6 +36,7 @@ export class PlayersController {
   constructor(
     private readonly playersService: PlayersService,
     private readonly roleService: RolesService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Post()
@@ -109,7 +113,9 @@ export class PlayersController {
     const leader = await this.playersService.findOneBy({
       where: { user: { id: req.user.id } },
     });
-    return await this.playersService.getTeam(leader);
+    const team = await this.playersService.getTeam(leader);
+    if (!team) throw new NotFoundException('No team exists');
+    return team;
   }
 
   @Auth(PermissionEnum.MATCH_MAKE)
@@ -125,6 +131,62 @@ export class PlayersController {
       where: { user: { id: req.user.id } },
     });
   }
+  @Auth(PermissionEnum.MATCH_MAKE)
+  @Get('invite/send')
+  async inviteSend(
+    @Query() inviteSendDto: InviteSendDto,
+    @Req() req: AuthFastifyRequest,
+  ) {
+    const leader = await this.playersService.findOneBy({
+      where: { user: { id: req.user.id } },
+    });
+    const player = await this.playersService.findOneBy({
+      where: { user: { id: inviteSendDto.playerUserId } },
+    });
+    if (!player) throw new BadRequestException('Player not found');
+    if (leader.user.id === player.user.id)
+      throw new BadRequestException('You cannot invite yourself');
+    const team = await this.playersService.getTeam(leader);
+    if (!team) throw new BadRequestException('No team exists to add player in');
+    if (
+      team.players.length >= this.configService.get<number>('TEAM_PLAYER_LIMIT')
+    )
+      throw new BadRequestException('Team is full');
+    const invitationLink = await this.playersService.createTeamInvitationLink(
+      team,
+      player,
+    );
+    // TODO: use websockets to send invite
+    return { invitationLink };
+  }
+
+  @Auth(PermissionEnum.MATCH_MAKE)
+  @Get('invite')
+  async invite(@Query('token') token: string, @Req() req: AuthFastifyRequest) {
+    const player = await this.playersService.findOneBy({
+      where: { user: { id: req.user.id } },
+    });
+    const invitation = await this.playersService.verifyInvitation(token);
+    if (invitation.playerId === player.user.id)
+      throw new BadRequestException('Invalid invitation');
+    const leader = await this.playersService.findOneBy({
+      where: { user: { id: invitation.leaderId } },
+    });
+    const team = await this.playersService.getTeam(leader);
+    if (!team) throw new BadRequestException('No team exists to add player in');
+    if (
+      team.players.length >= this.configService.get<number>('TEAM_PLAYER_LIMIT')
+    )
+      throw new BadRequestException('Team is full');
+    const playerAlreadyExist = team.players.filter(
+      (x) => x.user.id === player.user.id,
+    ).length;
+    if (playerAlreadyExist)
+      throw new BadRequestException('Player already in team');
+    team.players.push(player);
+    await this.playersService.saveTeam(team);
+  }
+
   private async findRoleOrThrow(name: string) {
     const role = await this.roleService.findOneBy({ name });
     if (!role)
