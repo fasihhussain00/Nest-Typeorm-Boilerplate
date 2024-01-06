@@ -26,6 +26,7 @@ import { PlayersService } from './players.service';
 import { SearchDto } from 'src/db/dto/search.dto';
 import { InviteSendDto } from './dto/invite-send.dto';
 import { ConfigService } from '@nestjs/config';
+import { NotificationGateway } from 'src/notification/notification.gateway';
 
 @ApiTags('Players')
 @Controller({
@@ -37,6 +38,7 @@ export class PlayersController {
     private readonly playersService: PlayersService,
     private readonly roleService: RolesService,
     private readonly configService: ConfigService,
+    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   @Post()
@@ -156,7 +158,10 @@ export class PlayersController {
       team,
       player,
     );
-    // TODO: use websockets to send invite
+    this.notificationGateway.sendNotification(player.user, {
+      data: { invitationLink },
+      message: 'You have been invited to join a team',
+    });
     return { invitationLink };
   }
 

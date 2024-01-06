@@ -8,3 +8,4 @@ dist/
 .dockerignore
 .env.docker-compose
 pod-secret.yaml
+test-socket/

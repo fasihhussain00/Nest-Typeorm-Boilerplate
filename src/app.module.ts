@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,6 +10,8 @@ import { ScopeDetectionModule } from './scope-detection/scope-detection.module';
 import { FilesModule } from './files/files.module';
 import { PlayersModule } from './players/players.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ChatGateway } from './chat/chat.gateway';
+import { NotificationGateway } from './notification/notification.gateway';
 @Module({
   imports: [
     CacheModule.register({
@@ -23,7 +25,9 @@ import { CacheModule } from '@nestjs/cache-manager';
     AuthModule,
     ScopeDetectionModule,
     FilesModule,
-    PlayersModule,
+    forwardRef(() => PlayersModule),
   ],
+  providers: [ChatGateway, NotificationGateway],
+  exports: [ChatGateway, NotificationGateway],
 })
 export class AppModule {}
