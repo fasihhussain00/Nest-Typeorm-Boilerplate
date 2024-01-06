@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   BadRequestException,
+  Req,
 } from '@nestjs/common';
 import { PlayersService } from './players.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
@@ -15,6 +16,11 @@ import { PlayerDto } from './dto/register-player.dto';
 import { Player } from './entities/player.entity';
 import { RolesService } from 'src/roles/roles.service';
 import { ApiTags } from '@nestjs/swagger';
+import { RegisterTeamDto } from './dto/register-team.dto';
+import { TeamDto } from './dto/team.dto';
+import { Auth } from 'src/auth/decorators/permission.decorator';
+import { PermissionEnum } from 'src/roles/entities/types';
+import { AuthFastifyRequest } from 'src/auth/type/request.user';
 
 @ApiTags('Players')
 @Controller({
@@ -82,6 +88,26 @@ export class PlayersController {
         roles: [role],
       },
     });
+  }
+  @Auth(PermissionEnum.MATCH_MAKE)
+  @Post('teams/register')
+  async registerTeam(
+    @Body() teamDto: RegisterTeamDto,
+    @Req() req: AuthFastifyRequest,
+  ): Promise<TeamDto> {
+    const leader = await this.playersService.findOneBy({
+      where: { user: { id: req.user.id } },
+    });
+    return await this.playersService.createTeam(teamDto, leader);
+  }
+
+  @Auth(PermissionEnum.MATCH_MAKE)
+  @Get('teams')
+  async fetchTeam(@Req() req: AuthFastifyRequest): Promise<TeamDto> {
+    const leader = await this.playersService.findOneBy({
+      where: { user: { id: req.user.id } },
+    });
+    return await this.playersService.getTeam(leader);
   }
   private async findRoleOrThrow(name: string) {
     const role = await this.roleService.findOneBy({ name });

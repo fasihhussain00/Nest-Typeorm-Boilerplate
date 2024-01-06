@@ -9,8 +9,12 @@ import { AuthModule } from './auth/auth.module';
 import { ScopeDetectionModule } from './scope-detection/scope-detection.module';
 import { FilesModule } from './files/files.module';
 import { PlayersModule } from './players/players.module';
+import { CacheModule } from '@nestjs/cache-manager';
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+    }),
     UsersModule,
     ConfigModule.forRoot({ cache: true, ignoreEnvFile: true }),
     TypeOrmModule.forRoot(dataSourceOptions),
