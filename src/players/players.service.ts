@@ -3,6 +3,7 @@ import {
   DeepPartial,
   FindManyOptions,
   FindOneOptions,
+  Like,
   Repository,
 } from 'typeorm';
 import { Player } from './entities/player.entity';
@@ -41,6 +42,17 @@ export class PlayersService {
 
   remove(id: number) {
     return this.playerRepository.softRemove({ id: id });
+  }
+
+  async search(search: string, fields: string[] | string) {
+    const filters = {};
+    if (!Array.isArray(fields)) {
+      fields = [fields];
+    }
+    for (const field of fields) {
+      filters[field] = Like(`%${search}%`);
+    }
+    return await this.playerRepository.find({ where: filters });
   }
   async createTeam(teamDto: RegisterTeamDto, leader: Player): Promise<TeamDto> {
     const team: TeamDto = {

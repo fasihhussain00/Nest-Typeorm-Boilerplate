@@ -1,26 +1,28 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
   Req,
 } from '@nestjs/common';
-import { PlayersService } from './players.service';
-import { CreatePlayerDto } from './dto/create-player.dto';
-import { UpdatePlayerDto } from './dto/update-player.dto';
-import { PlayerDto } from './dto/register-player.dto';
-import { Player } from './entities/player.entity';
-import { RolesService } from 'src/roles/roles.service';
 import { ApiTags } from '@nestjs/swagger';
+import { Auth } from 'src/auth/decorators/permission.decorator';
+import { AuthFastifyRequest } from 'src/auth/type/request.user';
+import { PermissionEnum } from 'src/roles/entities/types';
+import { RolesService } from 'src/roles/roles.service';
+import { CreatePlayerDto } from './dto/create-player.dto';
+import { PlayerDto } from './dto/register-player.dto';
 import { RegisterTeamDto } from './dto/register-team.dto';
 import { TeamDto } from './dto/team.dto';
-import { Auth } from 'src/auth/decorators/permission.decorator';
-import { PermissionEnum } from 'src/roles/entities/types';
-import { AuthFastifyRequest } from 'src/auth/type/request.user';
+import { UpdatePlayerDto } from './dto/update-player.dto';
+import { Player } from './entities/player.entity';
+import { PlayersService } from './players.service';
+import { SearchDto } from 'src/db/dto/search.dto';
 
 @ApiTags('Players')
 @Controller({
@@ -108,6 +110,12 @@ export class PlayersController {
       where: { user: { id: req.user.id } },
     });
     return await this.playersService.getTeam(leader);
+  }
+
+  @Auth(PermissionEnum.MATCH_MAKE)
+  @Get('search')
+  async search(@Query() searchDto: SearchDto): Promise<Player[]> {
+    return await this.playersService.search(searchDto.search, searchDto.field);
   }
   private async findRoleOrThrow(name: string) {
     const role = await this.roleService.findOneBy({ name });
