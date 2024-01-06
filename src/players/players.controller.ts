@@ -117,6 +117,14 @@ export class PlayersController {
   async search(@Query() searchDto: SearchDto): Promise<Player[]> {
     return await this.playersService.search(searchDto.search, searchDto.field);
   }
+
+  @Auth(PermissionEnum.MATCH_MAKE)
+  @Get('me')
+  async me(@Req() req: AuthFastifyRequest): Promise<Player> {
+    return await this.playersService.findOneBy({
+      where: { user: { id: req.user.id } },
+    });
+  }
   private async findRoleOrThrow(name: string) {
     const role = await this.roleService.findOneBy({ name });
     if (!role)
