@@ -1,6 +1,12 @@
 import { IsString, IsObject } from 'class-validator';
 import { Player } from '../entities/player.entity';
 
+export class TeamPlayerDto {
+  player: Player;
+  @IsString()
+  status: string;
+}
+
 export class TeamDto {
   @IsString()
   id: string;
@@ -14,7 +20,7 @@ export class TeamDto {
   @IsObject({
     each: true,
   })
-  players: Player[];
+  players: TeamPlayerDto[];
 
   @IsString()
   status: string;

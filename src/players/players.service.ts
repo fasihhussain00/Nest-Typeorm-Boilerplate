@@ -16,6 +16,7 @@ import { RegisterTeamDto } from './dto/register-team.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InvitationVerificationDto } from './dto/invitation.dto';
+import { PlayerStatus } from './enums/player.enum';
 @Injectable()
 export class PlayersService {
   constructor(
@@ -65,7 +66,7 @@ export class PlayersService {
       name: teamDto.name,
       leader: leader,
       players: [],
-      status: 'active',
+      status: PlayerStatus.inactive,
     };
     await this.cacheManager.set(
       `leader-${leader.user.id}-team`,

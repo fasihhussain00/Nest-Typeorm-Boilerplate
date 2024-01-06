@@ -27,6 +27,7 @@ import { SearchDto } from 'src/db/dto/search.dto';
 import { InviteSendDto } from './dto/invite-send.dto';
 import { ConfigService } from '@nestjs/config';
 import { NotificationGateway } from 'src/notification/notification.gateway';
+import { PlayerStatus } from './enums/player.enum';
 
 @ApiTags('Players')
 @Controller({
@@ -110,6 +111,21 @@ export class PlayersController {
   }
 
   @Auth(PermissionEnum.MATCH_MAKE)
+  @Patch('teams')
+  async updateTeam(
+    @Req() req: AuthFastifyRequest,
+    @Body() teamDto: TeamDto,
+  ): Promise<TeamDto> {
+    const leader = await this.playersService.findOneBy({
+      where: { user: { id: req.user.id } },
+    });
+    const team = await this.playersService.getTeam(leader);
+    if (!team || team.leader.userId != leader.userId)
+      throw new NotFoundException('No team exists');
+    await this.playersService.saveTeam(teamDto);
+    return teamDto;
+  }
+  @Auth(PermissionEnum.MATCH_MAKE)
   @Get('teams')
   async fetchTeam(@Req() req: AuthFastifyRequest): Promise<TeamDto> {
     const leader = await this.playersService.findOneBy({
@@ -184,11 +200,11 @@ export class PlayersController {
     )
       throw new BadRequestException('Team is full');
     const playerAlreadyExist = team.players.filter(
-      (x) => x.user.id === player.user.id,
+      (x) => x.player.user.id === player.user.id,
     ).length;
     if (playerAlreadyExist)
       throw new BadRequestException('Player already in team');
-    team.players.push(player);
+    team.players.push({ player, status: PlayerStatus.inactive });
     await this.playersService.saveTeam(team);
   }
 
