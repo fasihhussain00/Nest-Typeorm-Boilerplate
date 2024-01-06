@@ -77,7 +77,4 @@ describe('UsersController', () => {
   it('findAll', async () => {
     expect(await controller.findAll()).toEqual([user]);
   });
-  it('registerPlayer', async () => {
-    expect(await controller.registerPlayer(user)).toEqual(user);
-  });
 });

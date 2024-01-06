@@ -15,7 +15,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { RolesService } from 'src/roles/roles.service';
 import { Role } from 'src/roles/entities/role.entity';
-import { PlayerDto } from './dto/player.dto';
 import { Auth } from 'src/auth/decorators/permission.decorator';
 import { PermissionEnum } from 'src/roles/entities/types';
 
@@ -92,16 +91,5 @@ export class UsersController {
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return await this.usersService.remove(id);
-  }
-
-  @Post('player')
-  async registerPlayer(@Body() playerDto: PlayerDto): Promise<User> {
-    const role = await this.roleService.findOneBy({ name: 'player' });
-    if (!role)
-      throw new BadRequestException(
-        { message: 'This api is not enabled by admin yet' },
-        'This api is not enabled by admin yet',
-      );
-    return await this.usersService.create({ ...playerDto, roles: [role] });
   }
 }

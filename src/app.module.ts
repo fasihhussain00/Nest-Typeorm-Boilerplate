@@ -8,6 +8,7 @@ import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
 import { ScopeDetectionModule } from './scope-detection/scope-detection.module';
 import { FilesModule } from './files/files.module';
+import { PlayersModule } from './players/players.module';
 @Module({
   imports: [
     UsersModule,
@@ -18,6 +19,7 @@ import { FilesModule } from './files/files.module';
     AuthModule,
     ScopeDetectionModule,
     FilesModule,
+    PlayersModule,
   ],
 })
 export class AppModule {}

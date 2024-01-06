@@ -3,7 +3,10 @@ import { FilesService } from './files.service';
 import { ApiTags } from '@nestjs/swagger';
 import { SignedUrlResponse } from './types/signed-url';
 
-@Controller('files')
+@Controller({
+  path: 'files',
+  version: '1',
+})
 @ApiTags('Files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}

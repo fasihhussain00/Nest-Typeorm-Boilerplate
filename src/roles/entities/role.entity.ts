@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 import { PermissionEnum } from './types';
 
 @Entity()
-@Index('role_name_unqiue_constraint', ['name'], {
+@Index('role_name_uc', ['name'], {
   unique: true,
   where: '(deleted_at IS NULL)',
 })

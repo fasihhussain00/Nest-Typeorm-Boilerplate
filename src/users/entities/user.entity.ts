@@ -14,7 +14,7 @@ import { CustomBaseEntity } from 'src/db/custom.base.entity';
 import { Role } from 'src/roles/entities/role.entity';
 
 @Entity()
-@Index('user_email_unqiue_constraint', ['email'], {
+@Index('user_email_uc', ['email'], {
   unique: true,
   where: '(deleted_at IS NULL)',
 })
