@@ -1,5 +1,6 @@
 export interface EnvProps {
   APP_BASE_URL: string;
+  INVITATION_LINK: string;
   APP_PORT: number;
   CORS_ORIGINS: string;
   DB_URI: string;
@@ -14,6 +15,7 @@ export interface EnvProps {
 
 export const env: EnvProps = {
   APP_BASE_URL: process.env.APP_BASE_URL,
+  INVITATION_LINK: process.env.INVITATION_LINK,
   APP_PORT: +process.env.APP_PORT,
   CORS_ORIGINS: process.env.CORS_ORIGINS,
   DB_URI: process.env.DB_URI,
