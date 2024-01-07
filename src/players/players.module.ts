@@ -18,5 +18,6 @@ import { AppModule } from 'src/app.module';
   ],
   controllers: [PlayersController],
   providers: [PlayersService, TypeOrmModule],
+  exports: [PlayersService],
 })
 export class PlayersModule {}
