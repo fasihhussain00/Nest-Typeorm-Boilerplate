@@ -29,6 +29,7 @@ import { ConfigService } from '@nestjs/config';
 import { NotificationGateway } from 'src/notification/notification.gateway';
 import { PlayerStatus } from './enums/player.enum';
 import { NotificationType } from 'src/notification/types/notification';
+import { LobbyDto } from './dto/lobby.dto';
 
 @ApiTags('Players')
 @Controller({
@@ -135,6 +136,23 @@ export class PlayersController {
     const team = await this.playersService.getTeam(leader);
     if (!team) throw new NotFoundException('No team exists');
     return team;
+  }
+
+  @Auth(PermissionEnum.MATCH_MAKE)
+  @Get('lobbies')
+  async fetchLobby(
+    @Req() req: AuthFastifyRequest,
+    @Query('otherLeaderId') otherLeaderId: number,
+  ): Promise<LobbyDto> {
+    const leader = await this.playersService.findOneBy({
+      where: { user: { id: req.user.id } },
+    });
+    const lobby = await this.playersService.getLobby(
+      leader.userId,
+      otherLeaderId,
+    );
+    if (!lobby) throw new NotFoundException('No lobby exists');
+    return lobby;
   }
 
   @Auth(PermissionEnum.MATCH_MAKE)

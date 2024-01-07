@@ -7,6 +7,7 @@ import { TeamDto } from 'src/players/dto/team.dto';
 import { TeamStatus } from 'src/players/enums/player.enum';
 import { shuffle } from 'src/utils/array';
 import { NotificationType } from 'src/notification/types/notification';
+import { PlayersService } from 'src/players/players.service';
 
 @Injectable()
 export class MatchJobs {
@@ -14,6 +15,7 @@ export class MatchJobs {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly notificationGateway: NotificationGateway,
+    private readonly playersService: PlayersService,
   ) {}
   @Interval(1000)
   async searchForMatches() {
@@ -53,6 +55,7 @@ export class MatchJobs {
       );
       await this.cacheManager.del(team1Key);
       await this.cacheManager.del(team2Key);
+      await this.playersService.createLobby({ team1, team2 });
     }
   }
 }

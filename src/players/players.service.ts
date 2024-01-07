@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InvitationVerificationDto } from './dto/invitation.dto';
 import { TeamStatus } from './enums/player.enum';
+import { LobbyDto, LobbyRegisterDto, LobbyStatus } from './dto/lobby.dto';
 @Injectable()
 export class PlayersService {
   constructor(
@@ -26,6 +27,7 @@ export class PlayersService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {}
+
   create(player: DeepPartial<Player>) {
     return this.playerRepository.save(this.playerRepository.create(player));
   }
@@ -60,6 +62,7 @@ export class PlayersService {
     }
     return await this.playerRepository.find({ where: filters });
   }
+
   async createTeam(teamDto: RegisterTeamDto, leader: Player): Promise<TeamDto> {
     const team: TeamDto = {
       id: uuid.v4(),
@@ -89,6 +92,7 @@ export class PlayersService {
       `leader-${leader.user.id}-team`,
     );
   }
+
   async createTeamInvitationLink(
     team: TeamDto,
     player: Player,
@@ -103,8 +107,30 @@ export class PlayersService {
     );
     return `${invitationLink}?token=${token}`;
   }
+
   async verifyInvitation(token: string): Promise<InvitationVerificationDto> {
     const payload = this.jwtService.verify(token);
     return payload;
+  }
+
+  async createLobby(lobbyDto: LobbyRegisterDto): Promise<LobbyDto> {
+    const lobby: LobbyDto = {
+      id: uuid.v4(),
+      team1: lobbyDto.team1,
+      team2: lobbyDto.team2,
+      chats: [],
+      coinTossMatch: null,
+      rockPaperMatch: null,
+      status: LobbyStatus.active,
+    };
+    const leaderId = lobbyDto.team1.leader.userId;
+    const otherLeaderId = lobbyDto.team2.leader.userId;
+    const lobbyKey = `lobby-${[leaderId, otherLeaderId].sort().join('-')}`;
+    await this.cacheManager.set(lobbyKey, lobby, 20000000);
+    return lobby;
+  }
+  async getLobby(leaderId: number, otherLeaderId: number): Promise<LobbyDto> {
+    const lobbyKey = `lobby-${[leaderId, otherLeaderId].sort().join('-')}`;
+    return await this.cacheManager.get<LobbyDto>(lobbyKey);
   }
 }
