@@ -188,7 +188,7 @@ export class PlayersController {
       where: { user: { id: req.user.id } },
     });
     const invitation = await this.playersService.verifyInvitation(token);
-    if (invitation.playerId === player.user.id)
+    if (invitation.playerId !== player.user.id)
       throw new BadRequestException('Invalid invitation');
     const leader = await this.playersService.findOneBy({
       where: { user: { id: invitation.leaderId } },
