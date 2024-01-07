@@ -93,6 +93,17 @@ export class PlayersService {
     );
   }
 
+  async getPlayersTeam(player: Player): Promise<TeamDto> {
+    const keys = await this.cacheManager.store.keys('leader-*-team');
+    for (const key of keys) {
+      const team = await this.cacheManager.get<TeamDto>(key);
+      if (team.players.find((x) => x.player.user.id === player.user.id)) {
+        return team;
+      }
+    }
+    return null;
+  }
+
   async createTeamInvitationLink(
     team: TeamDto,
     player: Player,

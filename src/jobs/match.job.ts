@@ -19,8 +19,7 @@ export class MatchJobs {
   ) {}
   @Interval(1000)
   async searchForMatches() {
-    const keys = await this.cacheManager.store.keys();
-    const teamKeys = keys.filter((x) => /leader-\d+-team/.test(x));
+    const teamKeys = await this.cacheManager.store.keys('leader-*-team');
     let teamsAvailableForMatch: TeamDto[] = [];
     for (const teamKey of teamKeys) {
       const team = await this.cacheManager.get<TeamDto>(teamKey);

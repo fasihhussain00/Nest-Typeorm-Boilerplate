@@ -130,12 +130,13 @@ export class PlayersController {
   @Auth(PermissionEnum.MATCH_MAKE)
   @Get('teams')
   async fetchTeam(@Req() req: AuthFastifyRequest): Promise<TeamDto> {
-    const leader = await this.playersService.findOneBy({
+    const player = await this.playersService.findOneBy({
       where: { user: { id: req.user.id } },
     });
-    const team = await this.playersService.getTeam(leader);
-    if (!team) throw new NotFoundException('No team exists');
-    return team;
+    let team = await this.playersService.getTeam(player);
+    team = team ?? (await this.playersService.getPlayersTeam(player));
+    if (team) return team;
+    throw new NotFoundException('No team exists');
   }
 
   @Auth(PermissionEnum.MATCH_MAKE)
