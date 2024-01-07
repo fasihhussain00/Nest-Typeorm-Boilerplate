@@ -12,8 +12,11 @@ import { PlayersModule } from './players/players.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ChatGateway } from './chat/chat.gateway';
 import { NotificationGateway } from './notification/notification.gateway';
+import { MatchJobs } from './jobs/match.job';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     CacheModule.register({
       isGlobal: true,
     }),
@@ -27,7 +30,7 @@ import { NotificationGateway } from './notification/notification.gateway';
     FilesModule,
     forwardRef(() => PlayersModule),
   ],
-  providers: [ChatGateway, NotificationGateway],
-  exports: [ChatGateway, NotificationGateway],
+  providers: [ChatGateway, NotificationGateway, MatchJobs],
+  exports: [ChatGateway, NotificationGateway, MatchJobs],
 })
 export class AppModule {}

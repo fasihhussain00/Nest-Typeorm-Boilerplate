@@ -6,3 +6,8 @@ export interface NotificationMessage {
 export interface NotificationJoinRoom {
   userId: number;
 }
+
+export enum NotificationType {
+  teamInvitation = 'team-invitation',
+  foundMatch = 'found-match',
+}

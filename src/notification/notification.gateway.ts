@@ -12,6 +12,7 @@ import { User } from 'src/users/entities/user.entity';
 import {
   NotificationJoinRoom,
   NotificationMessage,
+  NotificationType,
 } from './types/notification';
 import { Logger } from '@nestjs/common';
 
@@ -44,9 +45,13 @@ export class NotificationGateway
     client.emit('joined-room', roomId);
   }
 
-  sendNotification(user: User, message: NotificationMessage) {
+  sendNotification(
+    user: User,
+    type: NotificationType,
+    message: NotificationMessage,
+  ) {
     const roomId = `${this.roomPrefix}-${user.id}`;
     this.logger.log(`Sent Notification "${message.message}" to ${roomId}`);
-    this.server.to(roomId).emit(`notification`, message);
+    this.server.to(roomId).emit(`notification`, { type, message });
   }
 }

@@ -28,6 +28,7 @@ import { InviteSendDto } from './dto/invite-send.dto';
 import { ConfigService } from '@nestjs/config';
 import { NotificationGateway } from 'src/notification/notification.gateway';
 import { PlayerStatus } from './enums/player.enum';
+import { NotificationType } from 'src/notification/types/notification';
 
 @ApiTags('Players')
 @Controller({
@@ -174,10 +175,14 @@ export class PlayersController {
       team,
       player,
     );
-    this.notificationGateway.sendNotification(player.user, {
-      data: { invitationLink },
-      message: 'You have been invited to join a team',
-    });
+    this.notificationGateway.sendNotification(
+      player.user,
+      NotificationType.teamInvitation,
+      {
+        data: { invitationLink },
+        message: 'You have been invited to join a team',
+      },
+    );
     return { invitationLink };
   }
 
