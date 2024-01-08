@@ -1,5 +1,5 @@
 import { IsString, IsObject } from 'class-validator';
-import { Player } from '../entities/player.entity';
+import { Player } from 'src/players/entities/player.entity';
 
 export class TeamPlayerDto {
   player: Player;

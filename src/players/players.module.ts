@@ -1,21 +1,13 @@
-import { Module, forwardRef } from '@nestjs/common';
-import { PlayersService } from './players.service';
+import { Module } from '@nestjs/common';
 import { PlayersController } from './players.controller';
 import { RolesModule } from 'src/roles/roles.module';
 import { Player } from './entities/player.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
-import { AppModule } from 'src/app.module';
+import { PlayersService } from './players.service';
 
 @Module({
-  imports: [
-    RolesModule,
-    TypeOrmModule.forFeature([Player]),
-    AuthModule,
-    ConfigModule,
-    forwardRef(() => AppModule),
-  ],
+  imports: [RolesModule, TypeOrmModule.forFeature([Player]), AuthModule],
   controllers: [PlayersController],
   providers: [PlayersService, TypeOrmModule],
   exports: [PlayersService],

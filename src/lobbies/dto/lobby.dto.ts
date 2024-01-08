@@ -1,5 +1,5 @@
 import { IsObject, IsString } from 'class-validator';
-import { TeamDto } from './team.dto';
+import { TeamDto } from 'src/teams/dto/team.dto';
 
 export enum LobbyStatus {
   active = 'active',

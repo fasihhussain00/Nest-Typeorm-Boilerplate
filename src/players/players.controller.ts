@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Patch,
   Post,
@@ -14,22 +13,14 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/permission.decorator';
 import { AuthFastifyRequest } from 'src/auth/type/request.user';
+import { SearchDto } from 'src/db/dto/search.dto';
 import { PermissionEnum } from 'src/roles/entities/types';
 import { RolesService } from 'src/roles/roles.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { PlayerDto } from './dto/register-player.dto';
-import { RegisterTeamDto } from './dto/register-team.dto';
-import { TeamDto } from './dto/team.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
 import { Player } from './entities/player.entity';
 import { PlayersService } from './players.service';
-import { SearchDto } from 'src/db/dto/search.dto';
-import { InviteSendDto } from './dto/invite-send.dto';
-import { ConfigService } from '@nestjs/config';
-import { NotificationGateway } from 'src/notification/notification.gateway';
-import { PlayerStatus } from './enums/player.enum';
-import { NotificationType } from 'src/notification/types/notification';
-import { LobbyDto } from './dto/lobby.dto';
 
 @ApiTags('Players')
 @Controller({
@@ -40,8 +31,6 @@ export class PlayersController {
   constructor(
     private readonly playersService: PlayersService,
     private readonly roleService: RolesService,
-    private readonly configService: ConfigService,
-    private readonly notificationGateway: NotificationGateway,
   ) {}
 
   @Post()
@@ -100,61 +89,6 @@ export class PlayersController {
       },
     });
   }
-  @Auth(PermissionEnum.MATCH_MAKE)
-  @Post('teams/register')
-  async registerTeam(
-    @Body() teamDto: RegisterTeamDto,
-    @Req() req: AuthFastifyRequest,
-  ): Promise<TeamDto> {
-    const leader = await this.playersService.findOneBy({
-      where: { user: { id: req.user.id } },
-    });
-    return await this.playersService.createTeam(teamDto, leader);
-  }
-
-  @Auth(PermissionEnum.MATCH_MAKE)
-  @Patch('teams')
-  async updateTeam(
-    @Req() req: AuthFastifyRequest,
-    @Body() teamDto: TeamDto,
-  ): Promise<TeamDto> {
-    const leader = await this.playersService.findOneBy({
-      where: { user: { id: req.user.id } },
-    });
-    const team = await this.playersService.getTeam(leader);
-    if (!team || team.leader.userId != leader.userId)
-      throw new NotFoundException('No team exists');
-    await this.playersService.saveTeam(teamDto);
-    return teamDto;
-  }
-  @Auth(PermissionEnum.MATCH_MAKE)
-  @Get('teams')
-  async fetchTeam(@Req() req: AuthFastifyRequest): Promise<TeamDto> {
-    const player = await this.playersService.findOneBy({
-      where: { user: { id: req.user.id } },
-    });
-    let team = await this.playersService.getTeam(player);
-    team = team ?? (await this.playersService.getPlayersTeam(player));
-    if (team) return team;
-    throw new NotFoundException('No team exists');
-  }
-
-  @Auth(PermissionEnum.MATCH_MAKE)
-  @Get('lobbies')
-  async fetchLobby(
-    @Req() req: AuthFastifyRequest,
-    @Query('otherLeaderId') otherLeaderId: number,
-  ): Promise<LobbyDto> {
-    const leader = await this.playersService.findOneBy({
-      where: { user: { id: req.user.id } },
-    });
-    const lobby = await this.playersService.getLobby(
-      leader.userId,
-      otherLeaderId,
-    );
-    if (!lobby) throw new NotFoundException('No lobby exists');
-    return lobby;
-  }
 
   @Auth(PermissionEnum.MATCH_MAKE)
   @Get('search')
@@ -168,68 +102,6 @@ export class PlayersController {
     return await this.playersService.findOneBy({
       where: { user: { id: req.user.id } },
     });
-  }
-  @Auth(PermissionEnum.MATCH_MAKE)
-  @Get('invite/send')
-  async inviteSend(
-    @Query() inviteSendDto: InviteSendDto,
-    @Req() req: AuthFastifyRequest,
-  ) {
-    const leader = await this.playersService.findOneBy({
-      where: { user: { id: req.user.id } },
-    });
-    const player = await this.playersService.findOneBy({
-      where: { user: { id: inviteSendDto.playerUserId } },
-    });
-    if (!player) throw new BadRequestException('Player not found');
-    if (leader.user.id === player.user.id)
-      throw new BadRequestException('You cannot invite yourself');
-    const team = await this.playersService.getTeam(leader);
-    if (!team) throw new BadRequestException('No team exists to add player in');
-    if (
-      team.players.length >= this.configService.get<number>('TEAM_PLAYER_LIMIT')
-    )
-      throw new BadRequestException('Team is full');
-    const invitationLink = await this.playersService.createTeamInvitationLink(
-      team,
-      player,
-    );
-    this.notificationGateway.sendNotification(
-      player.user,
-      NotificationType.teamInvitation,
-      {
-        data: { invitationLink },
-        message: 'You have been invited to join a team',
-      },
-    );
-    return { invitationLink };
-  }
-
-  @Auth(PermissionEnum.MATCH_MAKE)
-  @Get('invite')
-  async invite(@Query('token') token: string, @Req() req: AuthFastifyRequest) {
-    const player = await this.playersService.findOneBy({
-      where: { user: { id: req.user.id } },
-    });
-    const invitation = await this.playersService.verifyInvitation(token);
-    if (invitation.playerId !== player.user.id)
-      throw new BadRequestException('Invalid invitation');
-    const leader = await this.playersService.findOneBy({
-      where: { user: { id: invitation.leaderId } },
-    });
-    const team = await this.playersService.getTeam(leader);
-    if (!team) throw new BadRequestException('No team exists to add player in');
-    if (
-      team.players.length >= this.configService.get<number>('TEAM_PLAYER_LIMIT')
-    )
-      throw new BadRequestException('Team is full');
-    const playerAlreadyExist = team.players.filter(
-      (x) => x.player.user.id === player.user.id,
-    ).length;
-    if (playerAlreadyExist)
-      throw new BadRequestException('Player already in team');
-    team.players.push({ player, status: PlayerStatus.inactive });
-    await this.playersService.saveTeam(team);
   }
 
   private async findRoleOrThrow(name: string) {

@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,6 +14,8 @@ import { ChatGateway } from './chat/chat.gateway';
 import { NotificationGateway } from './notification/notification.gateway';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JobsModule } from './jobs/jobs.module';
+import { TeamsModule } from './teams/teams.module';
+import { LobbiesModule } from './lobbies/lobbies.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -28,10 +30,12 @@ import { JobsModule } from './jobs/jobs.module';
     AuthModule,
     ScopeDetectionModule,
     FilesModule,
-    forwardRef(() => PlayersModule),
+    PlayersModule,
     JobsModule,
+    TeamsModule,
+    LobbiesModule,
   ],
   providers: [ChatGateway, NotificationGateway],
-  exports: [ChatGateway, NotificationGateway, PlayersModule],
+  exports: [ChatGateway, NotificationGateway],
 })
 export class AppModule {}

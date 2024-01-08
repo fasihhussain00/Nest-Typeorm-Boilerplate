@@ -21,7 +21,7 @@ export class NotificationGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
   private readonly logger: Logger = new Logger(NotificationGateway.name);
-  private readonly roomPrefix: string = 'notifications-room-';
+  private readonly roomPrefix: string = 'notifications-room';
   @WebSocketServer()
   server: Server;
 

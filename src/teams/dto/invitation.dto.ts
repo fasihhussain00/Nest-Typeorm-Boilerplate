@@ -1,4 +1,4 @@
 export interface InvitationVerificationDto {
-  leaderId: number;
+  teamId: string;
   playerId: number;
 }

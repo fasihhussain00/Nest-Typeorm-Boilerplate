@@ -9,5 +9,7 @@ export interface NotificationJoinRoom {
 
 export enum NotificationType {
   teamInvitation = 'team-invitation',
+  teamInvitationAccept = 'team-invitation-accept',
+  teamInvitationReject = 'team-invitation-reject',
   foundMatch = 'found-match',
 }
