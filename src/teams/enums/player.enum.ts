@@ -7,4 +7,5 @@ export enum TeamStatus {
   active = 'active',
   inactive = 'inactive',
   searching = 'searching',
+  matchfound = 'matchfound',
 }

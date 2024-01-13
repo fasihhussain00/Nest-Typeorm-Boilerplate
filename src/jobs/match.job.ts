@@ -53,8 +53,10 @@ export class MatchJobs {
           data: { team: team1 },
         },
       );
-      await this.teamsService.remove(team1.id);
-      await this.teamsService.remove(team2.id);
+      team1.status = TeamStatus.matchfound;
+      team2.status = TeamStatus.matchfound;
+      await this.teamsService.save(team1);
+      await this.teamsService.save(team2);
       await this.lobbiesService.createLobby({ team1, team2 });
     }
   }

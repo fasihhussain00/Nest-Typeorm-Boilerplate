@@ -20,9 +20,12 @@ export class LobbiesService {
       status: LobbyStatus.active,
     };
     const lobbyKey = this.getLobbyKey(lobby.id);
-    const players = lobbyDto.team1.players.concat(lobbyDto.team2.players);
+    const players = lobbyDto.team1.players
+      .map((x) => x.player)
+      .concat(lobbyDto.team2.players.map((x) => x.player))
+      .concat([lobbyDto.team1.leader, lobbyDto.team2.leader]);
     for (const player of players) {
-      await this.setPlayerKey(player.player.user.id, lobbyKey);
+      await this.setPlayerKey(player.user.id, lobbyKey);
     }
     await this.cacheManager.set(lobbyKey, lobby, 20000000);
     return lobby;
